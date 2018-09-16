@@ -24,7 +24,19 @@ class MinifyHTMLMiddleware {
 
             $content = $response->getContent();
             $content = preg_replace(['/\>[^\S ]+/s', '/[^\S ]+\</s', '/(\s)+/s'], ['>', '<', '\\1'], $content);
-                        
+
+            // Remove multiline comment
+            $content = preg_replace ('/\/\*(?!-)[\x00-\xff]*?\*\//', "", $content);
+
+            // Remove single line comment
+            $content = preg_replace ('/(?=<!--)([\s\S]*?)-->/', "", $content);
+
+            // Remove extra spaces
+            $content = preg_replace ('/\s+/', " ", $content);
+
+            // Remove spaces that can be removed
+            $content = preg_replace ('/\s?([\{\};\=\(\)\/\+\*-])\s?/', "\\1", $content);
+
             $response->setContent($content);
 
         }
